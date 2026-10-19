@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "OpenStar login helper",
+  "version": "1.0.0",
+  "description": "Sends the myChevrolet sign-in redirect from GM's login page back to your OpenStar setup page.",
+  "permissions": ["webRequest", "storage", "scripting"],
+  "host_permissions": ["*://custlogin.gm.com/*", "http://localhost/*", "http://127.0.0.1/*"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "login-helper@openstar.local",
+      "strict_min_version": "128.0"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* A soft radial glow behind the app for depth, matched to the dark theme. */
+#root {
+  background:
+    radial-gradient(1100px 520px at 50% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgba(56, 189, 248, 0.08), transparent 55%);
+}
+
+* {
+  scrollbar-width: thin;
+}

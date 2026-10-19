@@ -1,0 +1,32 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - OpenStar</title>
+    @* Read by scripts/lib/api.ts; empty means "this host, port 5290". *@
+    <meta name="openstar-api" content="@Configuration["OpenStar:ApiBaseUrl"]" />
+    <link rel="stylesheet" href="~/assets/layout.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    @if (IsSectionDefined("Scripts"))
+    {
+        @* React views mount into #root; scripts/views/_layout.tsx renders the page shell. *@
+        <div id="root"></div>
+        @RenderBody()
+    }
+    else
+    {
+        <main role="main">
+            @RenderBody()
+        </main>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

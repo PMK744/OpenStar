@@ -1,0 +1,75 @@
+# OpenStar remote start for Home Assistant.
+# Drop this file into <config>/packages/ and enable packages in configuration.yaml:
+#
+#   homeassistant:
+#     packages: !include_dir_named packages
+#
+# Add to secrets.yaml (create the osk_ key on OpenStar's API keys page):
+#   openstar_api_key: "Bearer osk_..."
+#   openstar_start_url: "http://192.168.1.50:5290/api/vehicles/1G1XXXXXXXXXXXXXX/commands/start?wait=true"
+#   openstar_cancel_start_url: "http://192.168.1.50:5290/api/vehicles/1G1XXXXXXXXXXXXXX/commands/cancel-start?wait=true"
+
+rest_command:
+  openstar_start:
+    # ?wait=true blocks until GM reports Success, Failure or Timeout (up to ~120 s).
+    url: !secret openstar_start_url
+    method: POST
+    headers:
+      Authorization: !secret openstar_api_key
+    content_type: application/json
+    payload: >-
+      {% if cabin_temperature | default('') | string | length > 0 %}{"cabinTemperature": {{ cabin_temperature }}}{% else %}{}{% endif %}
+    timeout: 130
+
+  openstar_cancel_start:
+    url: !secret openstar_cancel_start_url
+    method: POST
+    headers:
+      Authorization: !secret openstar_api_key
+    content_type: application/json
+    payload: "{}"
+    timeout: 130
+
+script:
+  openstar_remote_start:
+    alias: "Remote start vehicle"
+    icon: mdi:car-key
+    mode: single
+    fields:
+      cabin_temperature:
+        name: Cabin temperature
+        description: Target cabin temperature in °C, where the vehicle supports it.
+        required: false
+        selector:
+          number:
+            min: 16
+            max: 30
+            unit_of_measurement: "°C"
+    sequence:
+      - action: rest_command.openstar_start
+        data:
+          cabin_temperature: "{{ cabin_temperature | default('') }}"
+        response_variable: result
+      - variables:
+          status: "{{ result.content.status if result.content is mapping else 'HTTP ' ~ result.status }}"
+      - action: persistent_notification.create
+        data:
+          title: "Remote start"
+          message: >-
+            {% if status == 'Success' %}Vehicle started.
+            {% elif status == 'InProgress' %}Sent; GM hasn't confirmed yet.
+            {% else %}Remote start failed ({{ status }}){% if result.content is mapping and result.content.error %}: {{ result.content.error }}{% endif %}.
+            {% endif %}
+
+  openstar_cancel_start:
+    alias: "Cancel remote start"
+    icon: mdi:car-off
+    mode: single
+    sequence:
+      - action: rest_command.openstar_cancel_start
+        response_variable: result
+      - action: persistent_notification.create
+        data:
+          title: "Cancel remote start"
+          message: >-
+            {{ result.content.status if result.content is mapping else 'HTTP ' ~ result.status }}

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Data protection, hosting, and options come from the shared ASP.NET Core framework. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Drives a real Chromium through GM's sign-in to get past its bot protection. -->
+    <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
+  </ItemGroup>
+
+</Project>

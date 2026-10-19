@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Applications 🖥️/">
+    <Project Path="applications/api/OpenStar.Api.csproj" />
+    <Project Path="applications/web/OpenStar.Web.csproj" />
+  </Folder>
+
+  <Folder Name="/Libraries 🗂️/">
+    <Project Path="libraries/core/OpenStar.Core.csproj" />
+  </Folder>
+
+  <Folder Name="/Packages 📦/">
+    <Project Path="packages\components\OpenStar.Components.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="packages\utilities\OpenStar.Utilities.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
+</Solution>

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
+
+  <PropertyGroup>
+    <!-- Dependencies are installed with `bun install` at the repo root; npm can't resolve workspace:* links. -->
+    <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+  </PropertyGroup>
+
+</Project>

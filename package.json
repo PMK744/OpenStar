@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "@pmkerby/openstar",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "applications/web"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

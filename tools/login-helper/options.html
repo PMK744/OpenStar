@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>OpenStar login helper</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 16px; min-width: 360px; }
+      label { display: block; font-weight: 600; margin-bottom: 4px; }
+      input { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+      button { margin-top: 10px; padding: 6px 14px; font: inherit; }
+      p { color: #555; }
+      #status { min-height: 1.5em; }
+      .error { color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <form id="form">
+      <label for="origin">OpenStar web address</label>
+      <input id="origin" type="url" placeholder="http://openstar:5299" required />
+      <p>
+        The address you open the OpenStar setup page at. The helper asks for access to this site only,
+        so it can pass the GM sign-in redirect to the setup page.
+      </p>
+      <button type="submit">Save</button>
+      <p id="status" role="status"></p>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>
