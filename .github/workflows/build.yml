@@ -1,0 +1,128 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.v.outputs.value }}
+    steps:
+      - id: v
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=0.0.0-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+  extension:
+    # The browser extension is platform-agnostic, so it's built and packed once.
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      V: ${{ needs.version.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - run: bun run build:extension
+      - name: Pack
+        run: |
+          mkdir -p dist
+          (cd tools/login-helper/dist && zip -qr "${GITHUB_WORKSPACE}/dist/openstar-login-helper-${V}.zip" .)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openstar-login-helper
+          path: dist/openstar-login-helper-*.zip
+          if-no-files-found: error
+
+  apps:
+    # Self-contained per-OS builds of the API and web apps (download-and-run).
+    needs: version
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: [linux-x64, win-x64]
+    env:
+      V: ${{ needs.version.outputs.value }}
+      RID: ${{ matrix.rid }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install JS dependencies
+        run: bun install
+
+      - name: Build front-end and login-helper extension
+        # Produces applications/web/wwwroot and tools/login-helper/dist.
+        run: bun run build
+
+      - name: Publish API
+        run: dotnet publish applications/api/OpenStar.Api.csproj -c Release -r "$RID" --self-contained true -o publish/api --nologo
+
+      - name: Publish Web
+        run: dotnet publish applications/web/OpenStar.Web.csproj -c Release -r "$RID" --self-contained true -o publish/web --nologo
+
+      - name: Bundle login helper into the web output
+        # So the web app's /login-helper.zip download works in the published artifact.
+        run: |
+          mkdir -p publish/web/tools/login-helper
+          cp -r tools/login-helper/dist publish/web/tools/login-helper/dist
+
+      - name: Pack
+        run: |
+          mkdir -p dist
+          (cd publish/api && zip -qr "${GITHUB_WORKSPACE}/dist/openstar-api-${V}-${RID}.zip" .)
+          (cd publish/web && zip -qr "${GITHUB_WORKSPACE}/dist/openstar-web-${V}-${RID}.zip" .)
+          ls -lh dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openstar-api-${{ matrix.rid }}
+          path: dist/openstar-api-*-${{ matrix.rid }}.zip
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openstar-web-${{ matrix.rid }}
+          path: dist/openstar-web-*-${{ matrix.rid }}.zip
+          if-no-files-found: error
+
+  release:
+    needs: [extension, apps]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true
