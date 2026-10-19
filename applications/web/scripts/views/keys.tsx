@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { KeysView, Page, type ApiKeySummary, type CreatedApiKey } from "@pmkerby/components";
+import { KeysView, Page, type ApiKeySummary, type CreatedApiKey } from "@openstar/components";
 
 import { AdminGate } from "../lib/admin-gate";
 import { apiRequest, clientApiBaseUrl, errorMessage } from "../lib/api";

@@ -1,11 +1,11 @@
-# @pmkerby/utilities
+# @openstar/utilities
 
 Shared framework-agnostic TypeScript utilities for the OpenStar web application.
 
 Utilities in this package should be small, deterministic, and independent of React, React Native, Vite, and Expo so they can be used from any workspace package.
 
 ```ts
-import { isDefined } from "@pmkerby/utilities";
+import { isDefined } from "@openstar/utilities";
 
 const values = [1, undefined, 2].filter(isDefined);
 ```

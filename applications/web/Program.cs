@@ -32,7 +32,7 @@ app.MapGet("/login-helper.zip", () =>
 {
     if (!Directory.Exists(helperDirectory))
     {
-        return Results.NotFound("The login helper source folder was not found on the server.");
+        return Results.NotFound("The login helper build was not found. Run `bun run build` in tools/login-helper.");
     }
 
     using var buffer = new MemoryStream();
@@ -56,12 +56,13 @@ static string ResolveHelperDirectory(IConfiguration configuration, IWebHostEnvir
         return Path.GetFullPath(configured, environment.ContentRootPath);
     }
 
-    // Walk up from the content root and the build output to find tools/login-helper.
+    // Walk up from the content root and the build output to find the extension's
+    // transpiled output (tools/login-helper/dist).
     foreach (var start in new[] { environment.ContentRootPath, AppContext.BaseDirectory })
     {
         for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
         {
-            var candidate = Path.Combine(directory.FullName, "tools", "login-helper");
+            var candidate = Path.Combine(directory.FullName, "tools", "login-helper", "dist");
             if (Directory.Exists(candidate))
             {
                 return candidate;
@@ -70,7 +71,7 @@ static string ResolveHelperDirectory(IConfiguration configuration, IWebHostEnvir
     }
 
     // Fall back to the usual repo layout; the endpoint reports if it's missing.
-    return Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", "..", "tools", "login-helper"));
+    return Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", "..", "tools", "login-helper", "dist"));
 }
 
 app.UseRouting();

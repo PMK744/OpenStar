@@ -1,5 +1,5 @@
 import { useCallback, useState, type ReactNode } from "react";
-import { AdminKeyForm } from "@pmkerby/components";
+import { AdminKeyForm } from "@openstar/components";
 
 import { ApiError, apiRequest, errorMessage, getStoredAdminKey, storeAdminKey } from "./api";
 

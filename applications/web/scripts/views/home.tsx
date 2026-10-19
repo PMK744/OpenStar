@@ -6,7 +6,7 @@ import {
   type CommandRecord,
   type Vehicle,
   type VehicleCommandName,
-} from "@pmkerby/components";
+} from "@openstar/components";
 
 import { AdminGate } from "../lib/admin-gate";
 import { apiRequest, errorMessage } from "../lib/api";

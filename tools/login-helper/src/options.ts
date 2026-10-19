@@ -1,37 +1,35 @@
-const api = globalThis.browser ?? globalThis.chrome;
+// Options page: stores the OpenStar web address and requests access to it so the
+// helper can bridge the GM redirect to the setup page.
+import { api, DEFAULT_ORIGIN, matchPattern } from "./shared";
 
-const form = document.getElementById("form");
-const input = document.getElementById("origin");
-const status = document.getElementById("status");
+const form = document.getElementById("form") as HTMLFormElement;
+const input = document.getElementById("origin") as HTMLInputElement;
+const status = document.getElementById("status") as HTMLParagraphElement;
 
-function show(text, isError = false) {
+function show(text: string, isError = false): void {
   status.textContent = text;
   status.className = isError ? "error" : "";
 }
 
-function matchPattern(origin) {
-  const url = new URL(origin);
-  return `${url.protocol}//${url.hostname}/*`;
-}
-
-const DEFAULT_ORIGIN = "http://localhost:5299";
-
-api.storage.local.get("origin").then(({ origin }) => {
-  input.value = origin || DEFAULT_ORIGIN;
+void api.storage.local.get("origin").then(({ origin }) => {
+  input.value = (typeof origin === "string" && origin) || DEFAULT_ORIGIN;
 });
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  let origin;
+  let origin: string;
   try {
     const url = new URL(input.value.trim());
+
     if (url.protocol !== "http:" && url.protocol !== "https:") {
-      throw new Error();
+      throw new Error("Unsupported protocol");
     }
+
     origin = url.origin;
   } catch {
     show("Enter an http:// or https:// address, like http://openstar:5299.", true);
+    
     return;
   }
 
@@ -46,18 +44,19 @@ form.addEventListener("submit", (event) => {
       }
 
       const { origin: previous } = await api.storage.local.get("origin");
-      if (previous && matchPattern(previous) !== matchPattern(origin)) {
+      if (typeof previous === "string" && previous && matchPattern(previous) !== matchPattern(origin)) {
         await api.permissions.remove({ origins: [matchPattern(previous)] }).catch(() => {});
       }
 
       await api.storage.local.set({ origin });
       input.value = origin;
-      const result = await api.runtime.sendMessage({ type: "sync" });
+
+      const result = (await api.runtime.sendMessage({ type: "sync" })) as { ok?: boolean; error?: string } | undefined;
       if (result?.ok) {
         show(`Saved. Open or reload ${origin}/setup to use the helper.`);
       } else {
         show(`Saved, but the helper could not attach to the page: ${result?.error ?? "unknown error"}`, true);
       }
     })
-    .catch((error) => show(String(error), true));
+    .catch((error: unknown) => show(String(error), true));
 });

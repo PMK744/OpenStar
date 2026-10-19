@@ -1,11 +1,17 @@
 {
   "private": true,
-  "name": "@pmkerby/openstar",
+  "name": "@openstar/openstar",
   "type": "module",
   "workspaces": [
     "packages/*",
-    "applications/web"
+    "applications/web",
+    "tools/login-helper"
   ],
+  "scripts": {
+    "build": "bun run build:extension && bun run build:web",
+    "build:web": "cd applications/web && bun run build",
+    "build:extension": "cd tools/login-helper && bun run build"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

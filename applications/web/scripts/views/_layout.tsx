@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 
 import { createRoot } from "react-dom/client";
-import { Layout, Provider } from "@pmkerby/components";
+import { Layout, Provider } from "@openstar/components";
 
 export default function RootLayout({ children }: { children?: ReactNode }) {
   return (

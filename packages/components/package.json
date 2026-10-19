@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@pmkerby/components",
+  "name": "@openstar/components",
   "version": "0.0.0",
   "type": "module",
   "sideEffects": false,
@@ -25,7 +25,7 @@
     "tamagui": "2.7.7"
   },
   "dependencies": {
-    "@pmkerby/utilities": "../utilities/",
+    "@openstar/utilities": "../utilities/",
     "@tamagui/config": "2.7.7"
   }
 }

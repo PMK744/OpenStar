@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Page, SetupView, type AccountStatus, type LoginStart, type SetupStep } from "@pmkerby/components";
+import { Page, SetupView, type AccountStatus, type LoginStart, type SetupStep } from "@openstar/components";
 
 import { AdminGate } from "../lib/admin-gate";
 import { apiRequest, errorMessage } from "../lib/api";

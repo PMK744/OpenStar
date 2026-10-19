@@ -1,4 +1,4 @@
-# @pmkerby/components
+# @openstar/components
 
 Shared [Tamagui](https://tamagui.dev) components for the OpenStar web application.
 
@@ -11,7 +11,7 @@ Platform-specific implementations use React Native's platform file resolution wh
 Both applications must render the shared `Provider` at the root. It wraps `TamaguiProvider` with the shared config in `src/tamagui.config.ts` and defaults to the `dark` theme:
 
 ```tsx
-import { Provider } from "@pmkerby/components";
+import { Provider } from "@openstar/components";
 
 <Provider>
   <App />
@@ -21,7 +21,7 @@ import { Provider } from "@pmkerby/components";
 ## Usage
 
 ```tsx
-import { Box } from "@pmkerby/components";
+import { Box } from "@openstar/components";
 
 export function Example() {
   return <Box padding="$4" />;
@@ -31,7 +31,7 @@ export function Example() {
 The shared `Button` supports `variant` (`default`, `secondary`, `outline`, `ghost`) and `size` (`default`, `sm`, `lg`) props on both platforms, plus any Tamagui style prop:
 
 ```tsx
-import { Button } from "@pmkerby/components";
+import { Button } from "@openstar/components";
 
 <Button variant="outline" size="sm" marginTop="$4" onPress={() => undefined}>
   Continue

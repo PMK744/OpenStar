@@ -21,7 +21,7 @@ export default defineConfig({
     dedupe: ["react", "react-dom", "tamagui"],
     alias: {
       "react-native": resolve(rootDirectory, "node_modules/react-native-web"),
-      "@pmkerby/components": resolve(
+      "@openstar/components": resolve(
         import.meta.dirname,
         "../../packages/components/src",
       ),

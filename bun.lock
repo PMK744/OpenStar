@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "@pmkerby/openstar",
+      "name": "@openstar/openstar",
       "devDependencies": {
         "@types/bun": "latest",
       },
@@ -11,11 +11,11 @@
       },
     },
     "applications/web": {
-      "name": "@pmkerby/web",
+      "name": "@openstar/web",
       "version": "0.0.0",
       "dependencies": {
-        "@pmkerby/components": "workspace:*",
-        "@pmkerby/utilities": "workspace:*",
+        "@openstar/components": "workspace:*",
+        "@openstar/utilities": "workspace:*",
         "react": "19.3.0",
         "react-dom": "19.3.0",
         "react-native-web": "0.21.2",
@@ -32,10 +32,10 @@
       },
     },
     "packages/components": {
-      "name": "@pmkerby/components",
+      "name": "@openstar/components",
       "version": "0.0.0",
       "dependencies": {
-        "@pmkerby/utilities": "../utilities/",
+        "@openstar/utilities": "../utilities/",
         "@tamagui/config": "2.7.7",
       },
       "devDependencies": {
@@ -51,10 +51,18 @@
       },
     },
     "packages/utilities": {
-      "name": "@pmkerby/utilities",
+      "name": "@openstar/utilities",
       "version": "0.0.0",
       "dependencies": {
         "@types/node": "^26.6.4",
+      },
+    },
+    "tools/login-helper": {
+      "name": "@openstar/login-helper",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/chrome": "latest",
+        "typescript": "7.0.2",
       },
     },
   },
@@ -309,11 +317,13 @@
 
     "@oxc-project/types": ["@oxc-project/types@0.154.0", "", {}, "sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA=="],
 
-    "@pmkerby/components": ["@pmkerby/components@workspace:packages/components"],
+    "@openstar/components": ["@openstar/components@workspace:packages/components"],
 
-    "@pmkerby/utilities": ["@pmkerby/utilities@workspace:packages/utilities"],
+    "@openstar/login-helper": ["@openstar/login-helper@workspace:tools/login-helper"],
 
-    "@pmkerby/web": ["@pmkerby/web@workspace:applications/web"],
+    "@openstar/utilities": ["@openstar/utilities@workspace:packages/utilities"],
+
+    "@openstar/web": ["@openstar/web@workspace:applications/web"],
 
     "@react-native/assets-registry": ["@react-native/assets-registry@0.86.3", "", {}, "sha512-TDhgCZA4wjJg84d5A9swiOQYPIWSKEEVdg9IwMFZDupQzW/F3QoLUrfAJOcalgqTDA9/buTB8awhE3Whwg6u9Q=="],
 
@@ -622,6 +632,14 @@
     "@tamagui/z-index-stack": ["@tamagui/z-index-stack@2.7.7", "", { "peerDependencies": { "react": ">=19" } }, "sha512-HKzvfbvo/NsktWBCoIySQEE6Y35GzkCkgxLWp+sKW83c7iIgU0hnWsu1BvoyBDjIDf0wf2VyzoJVjrUPTxFkbQ=="],
 
     "@types/bun": ["@types/bun@1.4.3", "", { "dependencies": { "bun-types": "1.4.3" } }, "sha512-N67Pqy8JXbAY/j0tNraS3V5mubGvc6rrrNDmDCtZLlFzccbUJPDb0tvgUBC5q4m8ybkP93Jcn1QB+RYQ6PvBhw=="],
+
+    "@types/chrome": ["@types/chrome@0.3.5", "", { "dependencies": { "@types/filesystem": "*", "@types/har-format": "*" } }, "sha512-7HYsK7xalNxzLwGrP9lkCQPAA6V56VtPpOmv2CQnBnMzX5/Hpr+Iv5fqaIOIY/H/Q6ZBksLmurWh7zXPcZ4B7Q=="],
+
+    "@types/filesystem": ["@types/filesystem@0.0.36", "", { "dependencies": { "@types/filewriter": "*" } }, "sha512-vPDXOZuannb9FZdxgHnqSwAG/jvdGM8Wq+6N4D/d80z+D4HWH+bItqsZaVRQykAn6WEVeEkLm2oQigyHtgb0RA=="],
+
+    "@types/filewriter": ["@types/filewriter@0.0.33", "", {}, "sha512-xFU8ZXTw4gd358lb2jw25nxY9QAgqn2+bKKjKOYfNCzN4DKCFetK7sPtrlpg66Ywe3vWY9FNxprZawAh9wfJ3g=="],
+
+    "@types/har-format": ["@types/har-format@1.2.16", "", {}, "sha512-fluxdy7ryD3MV6h8pTfTYpy/xQzCFC7m89nOH9y94cNqJ1mDIDPut7MnRHI3F6qRmh/cT2fUjG1MLdCNb4hE9A=="],
 
     "@types/istanbul-lib-coverage": ["@types/istanbul-lib-coverage@2.0.6", "", {}, "sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w=="],
 
@@ -1279,9 +1297,11 @@
 
     "@babel/plugin-transform-runtime/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
-    "@pmkerby/web/@types/node": ["@types/node@26.6.4", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg=="],
+    "@openstar/components/@openstar/utilities": ["@openstar/utilities@file:packages/utilities", { "dependencies": { "@types/node": "^26.6.4" } }],
 
-    "@pmkerby/web/react": ["react@19.3.0", "", {}, "sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog=="],
+    "@openstar/web/@types/node": ["@types/node@26.6.4", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg=="],
+
+    "@openstar/web/react": ["react@19.3.0", "", {}, "sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog=="],
 
     "@react-native/babel-plugin-codegen/@react-native/codegen": ["@react-native/codegen@0.88.0", "", { "dependencies": { "@babel/core": "^7.25.2", "@babel/parser": "^7.29.0", "flow-parser": "0.327.0", "invariant": "^2.2.4", "nullthrows": "^1.1.1", "tinyglobby": "^0.2.15", "yargs": "^17.6.2" } }, "sha512-SAGg+XfzsrPiYTscbKa9bo2/H2ei2TjyxW8RTMq2Ps661kRK3AnmpMGVfrEFshEMr3FGEbuQIvj86X98kaXlRA=="],
 

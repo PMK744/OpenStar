@@ -1,5 +1,5 @@
 {
-  "name": "@pmkerby/web",
+  "name": "@openstar/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@pmkerby/components": "workspace:*",
-    "@pmkerby/utilities": "workspace:*",
+    "@openstar/components": "workspace:*",
+    "@openstar/utilities": "workspace:*",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native-web": "0.21.2",

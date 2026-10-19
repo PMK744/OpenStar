@@ -1,0 +1,14 @@
+{
+  "name": "@openstar/login-helper",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser extension that captures GM's sign-in redirect for OpenStar.",
+  "scripts": {
+    "build": "bun run build.ts"
+  },
+  "devDependencies": {
+    "@types/chrome": "latest",
+    "typescript": "7.0.2"
+  }
+}
