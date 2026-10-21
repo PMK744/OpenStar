@@ -4,7 +4,7 @@ import { KeysView, Page, type ApiKeySummary, type CreatedApiKey } from "@opensta
 import { AdminGate } from "../lib/admin-gate";
 import { apiRequest, clientApiBaseUrl, errorMessage } from "../lib/api";
 
-function Keys({ adminKey, onRejected }: { adminKey: string; onRejected: (error: unknown) => boolean }) {
+function Keys({ onRejected }: { onRejected: (error: unknown) => boolean }) {
   const [keys, setKeys] = useState<ApiKeySummary[]>([]);
   const [created, setCreated] = useState<CreatedApiKey | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,7 @@ function Keys({ adminKey, onRejected }: { adminKey: string; onRejected: (error: 
       setError(null);
       try {
         await action();
-        setKeys(await apiRequest<ApiKeySummary[]>("/api/keys", adminKey));
+        setKeys(await apiRequest<ApiKeySummary[]>("/api/keys"));
       } catch (caught) {
         if (!onRejected(caught)) {
           setError(errorMessage(caught));
@@ -25,7 +25,7 @@ function Keys({ adminKey, onRejected }: { adminKey: string; onRejected: (error: 
         setIsLoading(false);
       }
     },
-    [adminKey, onRejected],
+    [onRejected],
   );
 
   useEffect(() => {
@@ -40,12 +40,12 @@ function Keys({ adminKey, onRejected }: { adminKey: string; onRejected: (error: 
       isLoading={isLoading}
       error={error}
       onCreate={(name) =>
-        void run(async () => setCreated(await apiRequest<CreatedApiKey>("/api/keys", adminKey, { method: "POST", body: { name } })))
+        void run(async () => setCreated(await apiRequest<CreatedApiKey>("/api/keys", { method: "POST", body: { name } })))
       }
       onRevoke={(id) =>
         void run(async () => {
           if (window.confirm("Revoke this key? Apps using it will be rejected immediately.")) {
-            await apiRequest(`/api/keys/${encodeURIComponent(id)}`, adminKey, { method: "DELETE" });
+            await apiRequest(`/api/keys/${encodeURIComponent(id)}`, { method: "DELETE" });
             setCreated(null);
           }
         })
@@ -57,7 +57,7 @@ function Keys({ adminKey, onRejected }: { adminKey: string; onRejected: (error: 
 export default function KeysPage() {
   return (
     <Page eyebrow="OpenStar" title="API keys" subtitle={`Apps call the OpenStar API at ${clientApiBaseUrl} with a key in the X-Api-Key header.`}>
-      <AdminGate>{(adminKey, onRejected) => <Keys adminKey={adminKey} onRejected={onRejected} />}</AdminGate>
+      <AdminGate>{(onRejected) => <Keys onRejected={onRejected} />}</AdminGate>
     </Page>
   );
 }

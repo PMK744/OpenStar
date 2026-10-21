@@ -1,29 +1,35 @@
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { AdminKeyForm } from "@openstar/components";
 
-import { ApiError, apiRequest, errorMessage, getStoredAdminKey, isManaged, storeAdminKey } from "./api";
+import { ApiError, apiRequest, errorMessage, getStoredAdminKey, isManaged, setAdminKey, storeAdminKey } from "./api";
 
 /**
- * Renders the admin key prompt until a key is known, then renders the page
- * with it. Pages call `onRejected` when the API refuses the stored key.
+ * Holds the admin key for the API client. It prompts until a valid key is known
+ * (or runs straight through in managed mode, where the server injects the key),
+ * then renders the page. Pages call `onRejected` when the API refuses the key.
  */
 export function AdminGate({
   children,
 }: {
-  children: (adminKey: string, onRejected: (error: unknown) => boolean) => ReactNode;
+  children: (onRejected: (error: unknown) => boolean) => ReactNode;
 }) {
-  const [adminKey, setAdminKey] = useState(getStoredAdminKey);
+  const [key, setKey] = useState<string | null>(() => (isManaged ? null : getStoredAdminKey()));
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Keep the API client's key in sync with the gate.
+  useEffect(() => setAdminKey(key), [key]);
 
   const submit = useCallback(async (candidate: string) => {
     setIsLoading(true);
     setError(null);
+    setAdminKey(candidate);
     try {
-      await apiRequest("/api/setup/verify", candidate);
+      await apiRequest("/api/setup/verify");
       storeAdminKey(candidate);
-      setAdminKey(candidate);
+      setKey(candidate);
     } catch (caught) {
+      setAdminKey(null);
       setError(errorMessage(caught));
     } finally {
       setIsLoading(false);
@@ -33,17 +39,16 @@ export function AdminGate({
   const onRejected = useCallback((caught: unknown) => {
     if (caught instanceof ApiError && (caught.status === 401 || caught.status === 403)) {
       storeAdminKey(null);
-      setAdminKey(null);
+      setKey(null);
       setError("The saved admin key no longer works. Enter it again.");
       return true;
     }
     return false;
   }, []);
 
-  // The web app injects the admin key server-side; render straight through.
   if (isManaged) {
-    return <>{children("", () => false)}</>;
+    return <>{children(onRejected)}</>;
   }
 
-  return adminKey ? children(adminKey, onRejected) : <AdminKeyForm error={error} isLoading={isLoading} onSubmit={submit} />;
+  return key ? children(onRejected) : <AdminKeyForm error={error} isLoading={isLoading} onSubmit={submit} />;
 }

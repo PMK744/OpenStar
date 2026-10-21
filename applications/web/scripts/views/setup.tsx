@@ -5,7 +5,7 @@ import { AdminGate } from "../lib/admin-gate";
 import { apiRequest, errorMessage } from "../lib/api";
 import { useLoginHelper } from "../lib/login-helper";
 
-function Setup({ adminKey, onRejected }: { adminKey: string; onRejected: (error: unknown) => boolean }) {
+function Setup({ onRejected }: { onRejected: (error: unknown) => boolean }) {
   const [account, setAccount] = useState<AccountStatus | null>(null);
   const [login, setLogin] = useState<LoginStart | null>(null);
   const [step, setStep] = useState<SetupStep>("signIn");
@@ -30,16 +30,16 @@ function Setup({ adminKey, onRejected }: { adminKey: string; onRejected: (error:
   );
 
   useEffect(() => {
-    void run(async () => setAccount(await apiRequest<AccountStatus>("/api/setup/account", adminKey)));
-  }, [adminKey, run]);
+    void run(async () => setAccount(await apiRequest<AccountStatus>("/api/setup/account")));
+  }, [run]);
 
   // Prepare the GM sign-in URL ahead of time so the click opens GM directly.
   useEffect(() => {
     if (step !== "signIn" || login) {
       return;
     }
-    void run(async () => setLogin(await apiRequest<LoginStart>("/api/setup/login", adminKey, { method: "POST" })));
-  }, [adminKey, login, run, step]);
+    void run(async () => setLogin(await apiRequest<LoginStart>("/api/setup/login", { method: "POST" })));
+  }, [login, run, step]);
 
   const startLogin = () => {
     if (!login || new Date(login.expiresAt).getTime() <= Date.now()) {
@@ -67,7 +67,7 @@ function Setup({ adminKey, onRejected }: { adminKey: string; onRejected: (error:
       if (!login) {
         throw new Error("Start the GM sign-in first.");
       }
-      const linked = await apiRequest<AccountStatus>("/api/setup/login/complete", adminKey, {
+      const linked = await apiRequest<AccountStatus>("/api/setup/login/complete", {
         method: "POST",
         body: { state: login.state, redirect },
       });
@@ -90,8 +90,8 @@ function Setup({ adminKey, onRejected }: { adminKey: string; onRejected: (error:
       if (!window.confirm("Unlink the GM account? API clients will stop working until you sign in again.")) {
         return;
       }
-      await apiRequest("/api/setup/account", adminKey, { method: "DELETE" });
-      setAccount(await apiRequest<AccountStatus>("/api/setup/account", adminKey));
+      await apiRequest("/api/setup/account", { method: "DELETE" });
+      setAccount(await apiRequest<AccountStatus>("/api/setup/account"));
       setStep("signIn");
     });
 
@@ -121,7 +121,7 @@ export default function SetupPage() {
       title="Link your GM account"
       subtitle="GM has no developer sign-in, so OpenStar uses the same sign-in as the myChevrolet app."
     >
-      <AdminGate>{(adminKey, onRejected) => <Setup adminKey={adminKey} onRejected={onRejected} />}</AdminGate>
+      <AdminGate>{(onRejected) => <Setup onRejected={onRejected} />}</AdminGate>
     </Page>
   );
 }

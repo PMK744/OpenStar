@@ -1,0 +1,23 @@
+# Pull-based deployment for Portainer (or any host without the repo checked out).
+# Paste this into a Portainer Stack, or point a Git-backed stack at this file.
+# It pulls the CI-built image from GHCR — no build context needed.
+#
+# If the GHCR package is private, add a registry in Portainer first
+# (Registries -> Custom: ghcr.io, your GitHub user, a PAT with read:packages).
+
+services:
+  openstar:
+    image: ghcr.io/pmk744/openstar:latest
+    container_name: openstar
+    restart: unless-stopped
+    ports:
+      - "5299:5299" # web UI — open http://<host>:5299
+      - "5290:5290" # API — for external clients / your own apps (optional to expose)
+    volumes:
+      - openstar-data:/data
+    # environment:
+    #   # Pin the shared admin key instead of letting the container generate one:
+    #   - OPENSTAR_ADMIN_KEY=osa_your_own_long_random_value
+
+volumes:
+  openstar-data:

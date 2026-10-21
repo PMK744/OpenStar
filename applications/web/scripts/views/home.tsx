@@ -15,7 +15,7 @@ interface GarageResponse {
   data?: { vehicles?: Vehicle[] };
 }
 
-function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (error: unknown) => boolean }) {
+function Dashboard({ onRejected }: { onRejected: (error: unknown) => boolean }) {
   const [account, setAccount] = useState<AccountStatus | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVin, setSelectedVin] = useState<string | null>(null);
@@ -34,20 +34,20 @@ function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (er
   );
 
   const loadCommands = useCallback(
-    async () => setCommands(await apiRequest<CommandRecord[]>("/api/commands", adminKey)),
-    [adminKey],
+    async () => setCommands(await apiRequest<CommandRecord[]>("/api/commands")),
+    [],
   );
 
   useEffect(() => {
     void (async () => {
       try {
-        const status = await apiRequest<AccountStatus>("/api/setup/account", adminKey);
+        const status = await apiRequest<AccountStatus>("/api/setup/account");
         setAccount(status);
         if (!status.isLinked) {
           return;
         }
 
-        const garage = await apiRequest<GarageResponse>("/api/vehicles", adminKey);
+        const garage = await apiRequest<GarageResponse>("/api/vehicles");
         // Fall back to the VINs in the token if the garage query returns nothing.
         const found = garage.data?.vehicles?.length ? garage.data.vehicles : status.vins.map((vin) => ({ vin }));
         setVehicles(found);
@@ -57,7 +57,7 @@ function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (er
         report(caught);
       }
     })();
-  }, [adminKey, loadCommands, report]);
+  }, [loadCommands, report]);
 
   // Keep the recent-commands list current while anything is in progress.
   useEffect(() => {
@@ -99,7 +99,7 @@ function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (er
               return;
             }
           }
-          const record = await apiRequest<CommandRecord>(`/api/vehicles/${selectedVin}/commands/${command}`, adminKey, {
+          const record = await apiRequest<CommandRecord>(`/api/vehicles/${selectedVin}/commands/${command}`, {
             method: "POST",
             body: {},
           });
@@ -108,15 +108,15 @@ function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (er
         })
       }
       onLocation={() =>
-        void busy("location", async () => show("Location", await apiRequest(`/api/vehicles/${selectedVin}/location`, adminKey)))
+        void busy("location", async () => show("Location", await apiRequest(`/api/vehicles/${selectedVin}/location`)))
       }
       onDiagnostics={() =>
         void busy("diagnostics", async () =>
-          show("Diagnostics", await apiRequest(`/api/vehicles/${selectedVin}/diagnostics`, adminKey)),
+          show("Diagnostics", await apiRequest(`/api/vehicles/${selectedVin}/diagnostics`)),
         )
       }
       onRefreshTokens={() =>
-        void busy("refresh", async () => setAccount(await apiRequest<AccountStatus>("/api/setup/refresh", adminKey, { method: "POST" })))
+        void busy("refresh", async () => setAccount(await apiRequest<AccountStatus>("/api/setup/refresh", { method: "POST" })))
       }
     />
   );
@@ -125,7 +125,7 @@ function Dashboard({ adminKey, onRejected }: { adminKey: string; onRejected: (er
 export default function Home() {
   return (
     <Page eyebrow="OpenStar" title="Dashboard" subtitle="Check the linked account and try commands before wiring up your own app.">
-      <AdminGate>{(adminKey, onRejected) => <Dashboard adminKey={adminKey} onRejected={onRejected} />}</AdminGate>
+      <AdminGate>{(onRejected) => <Dashboard onRejected={onRejected} />}</AdminGate>
     </Page>
   );
 }
