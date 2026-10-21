@@ -27,9 +27,20 @@ export OpenStar__ApiBaseUrl="http://localhost:5290"
 echo "OpenStar: admin key is managed automatically; the web UI at :5299 needs no key."
 echo "OpenStar: direct API access at :5290 uses the key in $DATA/admin.key (or a client key)."
 
-dotnet /app/api/OpenStar.Api.dll --urls "http://0.0.0.0:5290" &
+# Start an app by its self-contained executable when present (CI image), else
+# via the dotnet runtime (from-source image).
+start() {
+  local dir="$1" name="$2" url="$3"
+  if [[ -x "/app/$dir/$name" ]]; then
+    "/app/$dir/$name" --urls "$url" &
+  else
+    dotnet "/app/$dir/$name.dll" --urls "$url" &
+  fi
+}
+
+start api OpenStar.Api "http://0.0.0.0:5290"
 API_PID=$!
-dotnet /app/web/OpenStar.Web.dll --urls "http://0.0.0.0:5299" &
+start web OpenStar.Web "http://0.0.0.0:5299"
 WEB_PID=$!
 
 shutdown() {

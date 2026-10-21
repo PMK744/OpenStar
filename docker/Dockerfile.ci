@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+#
+# Builds the runtime image from already-published, self-contained output that
+# the Build workflow produced once — no SDK, no recompile. The build context
+# holds one directory per architecture (amd64/, arm64/), each with api/ and
+# web/, plus entrypoint.sh. buildx sets TARGETARCH per platform.
+
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0 AS runtime
+
+ARG TARGETARCH
+USER root
+WORKDIR /app
+
+COPY ${TARGETARCH}/api ./api
+COPY ${TARGETARCH}/web ./web
+COPY entrypoint.sh ./entrypoint.sh
+
+# Artifact upload/download drops the executable bit; restore it.
+RUN chmod +x ./entrypoint.sh ./api/OpenStar.Api ./web/OpenStar.Web
+
+ENV OPENSTAR_DATA=/data
+VOLUME ["/data"]
+
+# 5299 = web UI, 5290 = API (for external clients / your own apps).
+EXPOSE 5299 5290
+
+ENTRYPOINT ["./entrypoint.sh"]

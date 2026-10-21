@@ -53,12 +53,13 @@ jobs:
 
   apps:
     # Self-contained per-OS builds of the API and web apps (download-and-run).
+    # The Linux outputs are reused by the docker job (built once, not twice).
     needs: version
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        rid: [linux-x64, win-x64]
+        rid: [linux-x64, linux-arm64, win-x64]
     env:
       V: ${{ needs.version.outputs.value }}
       RID: ${{ matrix.rid }}
@@ -111,6 +112,80 @@ jobs:
           path: dist/openstar-web-*-${{ matrix.rid }}.zip
           if-no-files-found: error
 
+      # Hand the raw Linux output to the docker job so the image isn't rebuilt.
+      - name: Stage runtime payload for docker
+        if: startsWith(matrix.rid, 'linux')
+        run: |
+          mkdir -p oci/api oci/web
+          cp -r publish/api/. oci/api/
+          cp -r publish/web/. oci/web/
+      - uses: actions/upload-artifact@v4
+        if: startsWith(matrix.rid, 'linux')
+        with:
+          name: oci-${{ matrix.rid }}
+          path: oci
+          if-no-files-found: error
+
+  docker:
+    # Builds the multi-arch image from the apps job's published output — no recompile.
+    needs: apps
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect published output
+        uses: actions/download-artifact@v4
+        with:
+          pattern: oci-linux-*
+          path: downloaded
+
+      - name: Assemble build context
+        # Dockerfile.ci picks the arch dir via TARGETARCH (amd64 / arm64).
+        run: |
+          mkdir -p context/amd64 context/arm64
+          cp -r downloaded/oci-linux-x64/. context/amd64/
+          cp -r downloaded/oci-linux-arm64/. context/arm64/
+          cp docker/entrypoint.sh context/entrypoint.sh
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: latest=false
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: context
+          file: docker/Dockerfile.ci
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   release:
     needs: [extension, apps]
     if: startsWith(github.ref, 'refs/tags/')
@@ -120,6 +195,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
+          pattern: "openstar-*"
           path: artifacts
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
