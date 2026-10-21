@@ -11,9 +11,4 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Drives a real Chromium through GM's sign-in to get past its bot protection. -->
-    <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
-  </ItemGroup>
-
 </Project>

@@ -47,7 +47,7 @@ public sealed class PendingLogin
     public DateTimeOffset ExpiresAt { get; init; }
 }
 
-public sealed record LoginStart(string State, string AuthorizationUrl, DateTimeOffset ExpiresAt, string? RelayUrl = null);
+public sealed record LoginStart(string State, string AuthorizationUrl, DateTimeOffset ExpiresAt);
 
 public sealed record AccountStatus(
     bool IsLinked,

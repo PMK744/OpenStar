@@ -10,6 +10,12 @@ var configuredApi = builder.Configuration["OpenStar:ApiBaseUrl"];
 var apiBaseUrl = (string.IsNullOrWhiteSpace(configuredApi) ? "http://localhost:5290" : configuredApi).TrimEnd('/');
 builder.Services.AddHttpClient("api", client => client.Timeout = TimeSpan.FromSeconds(120));
 
+// "Managed auth": when the web app knows the shared admin key (e.g. injected by
+// the all-in-one container), the proxy adds it to UI requests that carry no key,
+// so the setup UI works with no key entry. Anyone who can reach this app is then
+// an admin — keep it on a trusted network.
+var managedAdminKey = builder.Configuration["OpenStar:AdminKey"];
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -108,6 +114,18 @@ async Task ProxyToApiAsync(HttpContext context)
         if (context.Request.Headers.TryGetValue(name, out var value))
         {
             request.Headers.TryAddWithoutValidation(name, (IEnumerable<string>)value!);
+        }
+    }
+
+    // Inject the shared admin key when the caller sent none (managed auth).
+    if (!string.IsNullOrEmpty(managedAdminKey))
+    {
+        var hasKey = context.Request.Headers.TryGetValue("X-Api-Key", out var presented) && !string.IsNullOrWhiteSpace(presented);
+        var hasAuth = context.Request.Headers.TryGetValue("Authorization", out var auth) && !string.IsNullOrWhiteSpace(auth);
+        if (!hasKey && !hasAuth)
+        {
+            request.Headers.Remove("X-Api-Key");
+            request.Headers.TryAddWithoutValidation("X-Api-Key", managedAdminKey);
         }
     }
 

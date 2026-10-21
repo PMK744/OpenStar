@@ -16,6 +16,13 @@ export const clientApiBaseUrl = (() => {
   return (configured || `${window.location.protocol}//${window.location.hostname}:5290`).replace(/\/$/, "");
 })();
 
+/**
+ * Managed mode: the web app injects the admin key into proxied requests itself,
+ * so the UI skips the admin-key prompt. Set by the all-in-one container.
+ */
+export const isManaged =
+  document.querySelector<HTMLMetaElement>('meta[name="openstar-managed"]')?.content.trim() === "true";
+
 export function getStoredAdminKey(): string | null {
   try {
     return window.localStorage.getItem(adminKeyStorageKey);

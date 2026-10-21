@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Options;
 
 using OpenStar.Api.Authentication;
-using OpenStar.Api.Proxy;
 using OpenStar.Core;
 using OpenStar.Core.Authentication;
 using OpenStar.Core.OnStar;
@@ -14,30 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddOpenStarCore(builder.Configuration);
-
-// Off by default: the browser signs in through the user's own browser (helped by
-// the login extension), so OpenStar needs no second port. Set a port to re-enable.
-var relayPort = builder.Configuration.GetValue("OpenStar:LoginRelayPort", 0);
-if (relayPort > 0)
-{
-    // A dedicated port carries the GM sign-in relay, so GM's root-absolute paths
-    // don't collide with the API's own routes. Bind it alongside the API's own
-    // URLs (adding a Kestrel listener in code would otherwise drop them).
-    var apiUrls = builder.Configuration["ASPNETCORE_URLS"]
-        ?? builder.Configuration["urls"]
-        ?? "http://localhost:5290";
-    builder.WebHost.UseUrls([.. apiUrls.Split(';', StringSplitOptions.RemoveEmptyEntries), $"http://0.0.0.0:{relayPort}"]);
-
-    // No auto-redirect (so the app-scheme redirect is caught), no cookie jar
-    // (cookies are relayed verbatim), no decompression (the body is streamed raw).
-    builder.Services.AddHttpClient<GmLoginRelay>(client => client.Timeout = TimeSpan.FromSeconds(60))
-        .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-        {
-            AllowAutoRedirect = false,
-            UseCookies = false,
-            AutomaticDecompression = System.Net.DecompressionMethods.None,
-        });
-}
 builder.Services.AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
 builder.Services.AddAuthorizationBuilder()
@@ -57,15 +31,6 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
-// Requests on the relay port are handled only by the GM sign-in relay, with
-// none of the API's auth, CORS, or routing.
-if (relayPort > 0)
-{
-    app.MapWhen(
-        context => context.Connection.LocalPort == relayPort,
-        branch => branch.Run(context => context.RequestServices.GetRequiredService<GmLoginRelay>().InvokeAsync(context)));
-}
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler(new ExceptionHandlerOptions

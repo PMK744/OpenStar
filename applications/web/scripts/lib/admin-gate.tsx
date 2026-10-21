@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { AdminKeyForm } from "@openstar/components";
 
-import { ApiError, apiRequest, errorMessage, getStoredAdminKey, storeAdminKey } from "./api";
+import { ApiError, apiRequest, errorMessage, getStoredAdminKey, isManaged, storeAdminKey } from "./api";
 
 /**
  * Renders the admin key prompt until a key is known, then renders the page
@@ -39,6 +39,11 @@ export function AdminGate({
     }
     return false;
   }, []);
+
+  // The web app injects the admin key server-side; render straight through.
+  if (isManaged) {
+    return <>{children("", () => false)}</>;
+  }
 
   return adminKey ? children(adminKey, onRejected) : <AdminKeyForm error={error} isLoading={isLoading} onSubmit={submit} />;
 }

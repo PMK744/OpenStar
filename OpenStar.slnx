@@ -13,9 +13,5 @@
       <Build />
       <Deploy />
     </Project>
-    <Project Path="packages\utilities\OpenStar.Utilities.esproj">
-      <Build />
-      <Deploy />
-    </Project>
   </Folder>
 </Solution>

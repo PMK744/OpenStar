@@ -1,0 +1,17 @@
+services:
+  openstar:
+    build: .
+    image: openstar:latest
+    container_name: openstar
+    restart: unless-stopped
+    ports:
+      - "5299:5299" # web UI — open http://<host>:5299
+      - "5290:5290" # API — for external clients / your own apps (optional to expose)
+    volumes:
+      - openstar-data:/data
+    # environment:
+    #   # Pin the shared admin key instead of letting the container generate one:
+    #   - OPENSTAR_ADMIN_KEY=osa_your_own_long_random_value
+
+volumes:
+  openstar-data:

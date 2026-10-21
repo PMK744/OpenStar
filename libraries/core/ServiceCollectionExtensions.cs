@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using OpenStar.Core.Authentication;
-using OpenStar.Core.BrowserLogin;
 using OpenStar.Core.Hosting;
 using OpenStar.Core.OnStar;
 using OpenStar.Core.Security;
@@ -27,7 +26,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ApiKeyManager>();
         services.AddSingleton<AccountManager>();
         services.AddSingleton<CommandTracker>();
-        services.AddSingleton<GmBrowserLogin>();
 
         // The auth manager and command tracker are singletons, so their HTTP
         // clients are too; a pooled connection lifetime keeps DNS changes honored.

@@ -25,7 +25,6 @@
     "tamagui": "2.7.7"
   },
   "dependencies": {
-    "@openstar/utilities": "../utilities/",
     "@tamagui/config": "2.7.7"
   }
 }

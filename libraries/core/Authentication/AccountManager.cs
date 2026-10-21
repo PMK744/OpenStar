@@ -176,7 +176,7 @@ public sealed class AccountManager(GmAuthClient authClient, StateStore store, IL
         }
     }
 
-    public static (string? Code, string? State, string? Error) ParseRedirect(string redirect)
+    private static (string? Code, string? State, string? Error) ParseRedirect(string redirect)
     {
         var value = redirect.Trim().Trim('"', '\'');
 

@@ -14,17 +14,6 @@ export interface LoginStart {
   state: string;
   authorizationUrl: string;
   expiresAt: string;
-  /** Sign-in URL routed through the OpenStar relay; null when the relay is off. */
-  relayUrl: string | null;
-}
-
-export type BrowserLoginStatus = "Linked" | "MfaRequired" | "Failed";
-
-export interface BrowserLoginResult {
-  status: BrowserLoginStatus;
-  state: string | null;
-  mfaType: string | null;
-  message: string | null;
 }
 
 export interface ApiKeySummary {

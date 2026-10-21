@@ -1,0 +1,22 @@
+# Build output and dependencies — rebuilt inside the image.
+**/bin/
+**/obj/
+node_modules/
+**/node_modules/
+applications/web/wwwroot/
+tools/login-helper/dist/
+dist/
+out/
+
+# Local state and secrets — never bake into the image.
+data/
+**/data/
+
+# Repo and editor noise.
+.git/
+.github/
+.vs/
+.vscode/
+.idea/
+**/*.user
+.DS_Store
