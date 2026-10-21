@@ -1,7 +1,9 @@
 services:
   openstar:
+    # Pull the CI-built image with `docker compose pull`, or build locally with
+    # `docker compose up --build`.
+    image: ghcr.io/pmk744/openstar:latest
     build: .
-    image: openstar:latest
     container_name: openstar
     restart: unless-stopped
     ports:
