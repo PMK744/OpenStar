@@ -27,14 +27,15 @@ export OpenStar__ApiBaseUrl="http://localhost:5290"
 echo "OpenStar: admin key is managed automatically; the web UI at :5299 needs no key."
 echo "OpenStar: direct API access at :5290 uses the key in $DATA/admin.key (or a client key)."
 
-# Start an app by its self-contained executable when present (CI image), else
-# via the dotnet runtime (from-source image).
+# Start an app from its own directory (so ASP.NET's content root — and thus
+# wwwroot — resolves correctly), by its self-contained executable when present
+# (CI image), else via the dotnet runtime (from-source image).
 start() {
   local dir="$1" name="$2" url="$3"
   if [[ -x "/app/$dir/$name" ]]; then
-    "/app/$dir/$name" --urls "$url" &
+    ( cd "/app/$dir" && exec "./$name" --urls "$url" ) &
   else
-    dotnet "/app/$dir/$name.dll" --urls "$url" &
+    ( cd "/app/$dir" && exec dotnet "./$name.dll" --urls "$url" ) &
   fi
 }
 
